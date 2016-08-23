@@ -2,7 +2,7 @@ import "./Project.sol";
 
 contract FundingHub {
 
-    mapping(address => uint) projectsMap;
+    mapping(address => uint) public projectsMap;
     Project[] public projects;
     uint public numProjects;
 

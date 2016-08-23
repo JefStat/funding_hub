@@ -16,8 +16,8 @@ contract Project {
 
     ProjectDetails public details;
 
-    mapping (uint => Funder) funders;
-    uint numFunders = 0;
+    mapping (uint => Funder) public funders;
+    uint public numFunders = 0;
 
     function Project(address owner, uint goalAmount, uint deadline) {
         details = ProjectDetails({
@@ -30,7 +30,7 @@ contract Project {
         });
     }
 
-
+    // Allows over funding of project if final funder's contribution will exceed the goal amount
     function fund() {
         if (details.refunded || details.paid) throw;
         if (details.deadline < now || details.amountFunded >= details.goalAmount) {
