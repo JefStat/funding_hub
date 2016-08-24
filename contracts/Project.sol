@@ -20,6 +20,7 @@ contract Project {
     uint public numFunders = 0;
 
     function Project(address owner, uint goalAmount, uint deadline) {
+        if (msg.value > 0) throw;
         details = ProjectDetails({
             owner: owner,
             goalAmount: goalAmount,
@@ -52,7 +53,7 @@ contract Project {
 
 
     bool payingOut = false;
-    function payout() {
+    function payout() private {
         payingOut = true;
         if (payingOut) throw;
         if (!details.owner.send(this.balance)) throw;
@@ -62,7 +63,7 @@ contract Project {
 
 
     bool refunding = false;
-    function refund() {
+    function refund() private {
         refunding = true;
         if (refunding) throw;
         for (uint i; i < numFunders; i++) {
