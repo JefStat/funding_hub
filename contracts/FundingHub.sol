@@ -1,17 +1,20 @@
 import "./Project.sol";
 
 contract FundingHub {
+    event NewProject(address project);
+
     mapping(address => uint) public projectsMap;
-    Project[] public projects;
+    address[] public projects;
 
     function createProject(address owner, uint goalAmount, uint deadline) {
-        Project p = new Project(owner, goalAmount, deadline);
+        address p = address(new Project(owner, goalAmount, deadline));
         projectsMap[p] = projects.length;
         projects.push(p);
+        NewProject(p);
     }
 
-    function contribute(Project project) {
-        project.fund();
+    function contribute(address project) {
+        Project(project).fund.value(msg.value)();
     }
 
     function getProject(uint index) returns(address) {
