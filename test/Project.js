@@ -1,3 +1,19 @@
+
+// ref https://github.com/tcoulter/dao-truffle/blob/master/index.js
+function jump(duration) {
+    return function(callback) {
+        console.log("Jumping " + duration + "s ...");
+        var seconds = Math.floor(new Date().getTime() / 1000) + duration;
+
+        web3.currentProvider.sendAsync({
+            jsonrpc: "2.0",
+            method: "evm_increaseTime",
+            params: [seconds],
+            id: new Date().getTime()
+        }, callback);
+    }
+}
+
 var ProjectDetailsStruct = {
     new: function (truffleArray) {
         return {
@@ -121,18 +137,38 @@ contract('Project', function (accounts) {
                     });
             });
     });
-    it('should refund when goal failed', function () {
-        var p = Project.new();
-
-        return p.fund({from: accounts[0], value: 10}).then(function (tx) {
-            console.log('[TEST][Project]  fund tx: ', tx);
-        });
-    });
-    it('should payout when goal succeeded', function () {
-        var p = Project.new();
-
-        return p.fund({from: accounts[0], value: 10}).then(function (tx) {
-            console.log('[TEST][Project]  fund tx: ', tx);
-        });
+    it.only('should refund when goal failed', function () {
+        var expected = {
+            owner: accounts[0],
+            goalAmount: 10,
+            deadline: Math.floor(Date.now() / 1000) + 60,
+            amountFunded: 1,
+            refunded: true,
+            paid: false
+        };
+        return Project.new(expected.owner, expected.goalAmount, expected.deadline)
+            .then(function (p) {
+                console.log('[TEST][Project]  new project: ', p.address);
+                return p.fund({from: accounts[0], value: 1})
+                    .then(function (tx) {
+                        console.log('[TEST][Project]  fund 1 tx: ', tx);
+                        return new Promise(function (resolve, reject) {
+                            jump(62)(resolve);
+                        });
+                    })
+                    .then(function (tx) {
+                        console.log('[TEST][Project]  jump');
+                        return p.fund({from: accounts[0], value: 1});
+                    })
+                    .then(function (tx) {
+                        console.log('[TEST][Project]  fund late: ', tx);
+                        return p.details.call();
+                    })
+                    .then(function (details) {
+                        var d = ProjectDetailsStruct.new(details);
+                        console.log('[TEST][Project]  details ', d);
+                        assertDetails(expected, d);
+                    });
+            });
     });
 });
