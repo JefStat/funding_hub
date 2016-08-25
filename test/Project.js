@@ -23,7 +23,7 @@ var assertDetails = function (expected, d) {
 contract('Project', function (accounts) {
     it('should create a project', function () {
         var expected = {
-            owner:accounts[0],
+            owner: accounts[0],
             goalAmount: 100000,
             deadline: Date.now(),
             amountFunded: 0,
@@ -43,11 +43,27 @@ contract('Project', function (accounts) {
             });
     });
     it('should fund', function () {
-        var p = Project.new();
-
-        return p.fund({from: accounts[0], value: 10}).then(function (tx) {
-            console.log('[TEST][Project]  fund tx: ', tx);
-        });
+        var expected = {
+            owner: accounts[0],
+            goalAmount: 100000,
+            deadline: Date.now(),
+            amountFunded: 10,
+            refunded: false,
+            paid: false
+        };
+        return Project.new(expected.owner, expected.goalAmount, expected.deadline)
+            .then(function (p) {
+                return p.fund({from: accounts[0], value: expected.amountFunded})
+                    .then(function (tx) {
+                        console.log('[TEST][Project]  fund tx: ', tx);
+                        return p.details.call();
+                    })
+                    .then(function (details) {
+                        var d = ProjectDetailsStruct.new(details);
+                        console.log(d);
+                        assertDetails(expected, d);
+                    });
+            });
     });
     it('should not fund when goal succeeded', function () {
         var p = Project.new();
