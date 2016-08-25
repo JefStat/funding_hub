@@ -22,6 +22,7 @@ contract Project {
     function Project(address owner, uint goalAmount, uint deadline) {
         if (msg.value > 0) throw;
         if (goalAmount == 0) throw;
+        //TODO enforce deadline is in the future
         details = ProjectDetails({
             owner: owner,
             goalAmount: goalAmount,

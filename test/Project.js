@@ -25,7 +25,7 @@ contract('Project', function (accounts) {
         var expected = {
             owner: accounts[0],
             goalAmount: 100000,
-            deadline: Date.now() + 60 * 1000,
+            deadline: Math.floor(Date.now() / 1000) + 60,
             amountFunded: 0,
             refunded: false,
             paid: false
@@ -46,7 +46,7 @@ contract('Project', function (accounts) {
         var expected = {
             owner: accounts[0],
             goalAmount: 100000,
-            deadline: Date.now() + 60 * 1000,
+            deadline: Math.floor(Date.now() / 1000) + 60,
             amountFunded: 10,
             refunded: false,
             paid: false
@@ -66,11 +66,14 @@ contract('Project', function (accounts) {
                     });
             });
     });
+    //TODO fund from a different account than owner
+    //TODO assert account[0] balance received the payout
+    //TODO assert refund was issue for fund #2
     it('should not fund when goal succeeded', function () {
         var expected = {
             owner: accounts[0],
             goalAmount: 10,
-            deadline: Date.now() + 60 * 1000,
+            deadline: Math.floor(Date.now() / 1000) + 60,
             amountFunded: 10,
             refunded: false,
             paid: true
@@ -94,6 +97,29 @@ contract('Project', function (accounts) {
                     });
             });
     });
+    it('should not fund when goal date passed', function () {
+        var expected = {
+            owner: accounts[0],
+            goalAmount: 10,
+            deadline: Math.floor(Date.now() / 1000) - 24 * 60 * 60,
+            amountFunded: 0,
+            refunded: true,
+            paid: false
+        };
+        return Project.new(expected.owner, expected.goalAmount, expected.deadline)
+            .then(function (p) {
+                console.log('[TEST][Project]  new project: ', p.address);
+                return p.fund({from: accounts[0], value: 9})
+                    .then(function (tx) {
+                        console.log('[TEST][Project]  fund 2 tx: ', tx);
+                        return p.details.call();
+                    })
+                    .then(function (details) {
+                        var d = ProjectDetailsStruct.new(details);
+                        console.log('[TEST][Project]  details ', d);
+                        assertDetails(expected, d);
+                    });
+            });
     });
     it('should refund when goal failed', function () {
         var p = Project.new();
