@@ -21,6 +21,7 @@ contract Project {
 
     function Project(address owner, uint goalAmount, uint deadline) {
         if (msg.value > 0) throw;
+        if (goalAmount == 0) throw;
         details = ProjectDetails({
             owner: owner,
             goalAmount: goalAmount,
@@ -35,7 +36,7 @@ contract Project {
     function fund() {
         if (details.refunded || details.paid) throw;
         if (details.deadline < now || details.amountFunded >= details.goalAmount) {
-            if (tx.origin.send(msg.value)) throw;
+            if (!tx.origin.send(msg.value)) throw;
             if (details.amountFunded >= details.goalAmount) {
                 payout();
             } else {
@@ -54,18 +55,18 @@ contract Project {
 
     bool payingOut = false;
     function payout() private {
-        payingOut = true;
         if (payingOut) throw;
+        payingOut = true;
         if (!details.owner.send(this.balance)) throw;
-        details.paid;
+        details.paid = true;
         payingOut = false;
     }
 
 
     bool refunding = false;
     function refund() private {
-        refunding = true;
         if (refunding) throw;
+        refunding = true;
         for (uint i; i < numFunders; i++) {
             var funder = funders[i];
             if (!funder.addr.send(funder.amount)) throw;
