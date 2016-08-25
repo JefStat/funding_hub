@@ -11,10 +11,26 @@ var ProjectDetailsStruct = {
     }
 };
 
+var assertDetails = function (expected, d) {
+    assert.equal(expected.owner, d.owner);
+    assert.equal(expected.goalAmount, d.goalAmount);
+    assert.equal(expected.deadline, d.deadline);
+    assert.equal(expected.amountFunded, d.amountFunded);
+    assert.equal(expected.refunded, d.refunded);
+    assert.equal(expected.paid, d.paid);
+};
+
 contract('Project', function (accounts) {
-    it.only('should create a project', function () {
-        var now = Date.now();
-        return Project.new(accounts[0], 100000, now)
+    it('should create a project', function () {
+        var expected = {
+            owner:accounts[0],
+            goalAmount: 100000,
+            deadline: Date.now(),
+            amountFunded: 0,
+            refunded: false,
+            paid: false
+        };
+        return Project.new(expected.owner, expected.goalAmount, expected.deadline)
             .then(function (p) {
                 console.log('[TEST][Project]  new project: ', p.address);
                 assert.equal(true, p.address != '0x');
@@ -23,11 +39,7 @@ contract('Project', function (accounts) {
             .then(function (details) {
                 var d = ProjectDetailsStruct.new(details);
                 console.log(d);
-                assert.equal(accounts[0], d.owner);
-                assert.equal('100000', d.goalAmount.toString());
-                assert.equal(now.toString(), d.deadline.toString());
-                assert.equal(false, d.refunded);
-                assert.equal(false, d.paid);
+                assertDetails(expected, d);
             });
     });
     it('should fund', function () {
