@@ -15,17 +15,16 @@ contract('FundingHub', function (accounts) {
             // done();
         });
 
-        return fh.createProject(accounts[0], 100000, Date.now())
+        return fh.createProject(accounts[0], 100000, Math.floor(Date.now()/1000))
             .then(function (tx) {
                 console.log('[TEST][FundingHub]  createProject tx: ', tx);
                 allEvents.get(function (err, e) {
                     console.log(e);
                 });
-                //calling index 1 since migrations deployed a project
-                return fh.getProject.call(1);
+                return fh.getProject.call(0);
             })
             .then(function (address) {
-                console.log('[TEST][FundingHub]  project index 1: ', address);
+                console.log('[TEST][FundingHub]  project index 0: ', address);
                 //assert fails though the same code path works in the migration
                 assert.equal(true, address != '0x');
                 // done();
