@@ -43813,7 +43813,7 @@ window.addEventListener('load', function() {
 
                                                                 
 
-  [FundingHub,Migrations,Project].forEach(function(contract) {         
+  [Migrations,FundingHub,Project].forEach(function(contract) {         
 
     contract.setProvider(window.web3.currentProvider);          
 
