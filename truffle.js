@@ -2,11 +2,14 @@ module.exports = {
   build: {
     "index.html": "index.html",
     "app.js" : [
+      "javascripts/_vendor/hooked-web3-provider.js",
+      "javascripts/_vendor/lightwallet.js",
       "javascripts/_vendor/angular.js",
       "javascripts/app.js"
     ],
     "FundingHubController.js": [
-      "javascripts/FundingHubController.js"
+      "javascripts/FundingHubController.js",
+
     ],
     "app.css": [
       "stylesheets/app.css"

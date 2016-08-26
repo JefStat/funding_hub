@@ -63,6 +63,7 @@ app.controller(
                         }
                     });
                 $scope.refreshProjects();
+                $scope.wallet();
             };
 
             $scope.refreshProjects = () => {
@@ -99,6 +100,42 @@ app.controller(
                 //     .catch(error => {
                 //         console.error(error);
                 //     });
+            };
+            $scope.wallet = () => {
+                // Example of seed 'unhappy nerve cancel reject october fix vital pulse cash behind curious bicycle'
+                var seed = prompt('Enter your private key seed', '12 words long');
+                // the seed is stored in memory and encrypted by this user-defined password
+                var password = prompt('Enter password to encrypt the seed', 'dev_password');
+
+                lightwallet.keystore.deriveKeyFromPassword(password, (err, _pwDerivedKey) => {
+                    let pwDerivedKey = _pwDerivedKey;
+                    let ks = new lightwallet.keystore(seed, pwDerivedKey);
+
+                    // Create a custom passwordProvider to prompt the user to enter their
+                    // password whenever the hooked web3 provider issues a sendTransaction
+                    // call.
+                    ks.passwordProvider = callback => {
+                        var pw = prompt("Please enter password to sign your transaction", "dev_password");
+                        callback(null, pw);
+                    };
+
+                    let provider = new HookedWeb3Provider({
+                        // Let's pick the one that came with Truffle
+                        host: web3.currentProvider.host,
+                        transaction_signer: ks
+                    });
+                    web3.setProvider(provider);
+                    // And since Truffle v2 uses EtherPudding v3, we also need the line:
+                    FundingHub.setProvider(provider);
+                    Project.setProvider(provider);
+
+                    // Generate the first address out of the seed
+                    ks.generateNewAddress(pwDerivedKey);
+
+                    let accounts = ks.getAddresses();
+                    let account = "0x" + accounts[0];
+                    console.log("Your account is " + account);
+                });
             };
 
         }]);

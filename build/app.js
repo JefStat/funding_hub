@@ -44349,7 +44349,7 @@ window.addEventListener('load', function() {
 
                                                                 
 
-  [Migrations,FundingHub,Project].forEach(function(contract) {         
+  [FundingHub,Migrations,Project].forEach(function(contract) {         
 
     contract.setProvider(window.web3.currentProvider);          
 
