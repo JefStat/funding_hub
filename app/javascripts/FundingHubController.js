@@ -29,7 +29,13 @@ app.controller(
                     var deadlineInt = Math.floor(deadline.valueOf() / 1000);
 
                     fh
-                        .createProject(owner, goalAmount, deadlineInt, {from: web3.eth.defaultAccount})
+                        .createProject
+                        .sendTransaction(owner, goalAmount, deadlineInt,
+                            {
+                                from: web3.eth.defaultAccount
+                                ,gas: web3.toBigNumber(web3.toWei(4,'Mwei'))
+                                ,gasPrice: web3.gasPrice
+                            })
                         .then(tx => {
                             return web3
                                 .eth
@@ -37,7 +43,6 @@ app.controller(
                                 .then(console.log)
                                 .catch(console.error);
                         })
-                        //.then($scope.refreshProjects)
                         .catch(console.error);
                 }
             };
@@ -46,28 +51,7 @@ app.controller(
 
             $window.onload = e => {
                 initWeb3();
-                web3.eth.getAccounts(
-                    (err, acc) => {
-                        if (err) {
-                            console.error(err);
-                            return;
-                        }
-                        if (acc && acc.length > 0) {
-                            web3.eth.defaultAccount = acc[0];
-                            $scope.$apply(() => {
-                                $scope.owner = web3.eth.defaultAccount;
-                                $scope.sender = web3.eth.defaultAccount;
-                            });
-                        } else {
-                            console.error('Couldn\'t set web3.eth.defaultAccount, ', acc)
-                        }
-                    });
-                $scope.refreshProjects();
                 $scope.wallet();
-            };
-
-            $scope.refreshProjects = () => {
-
                 var events = fh.allEvents({}, function (err, e) {
                     if (err) {
                         console.error(err);
@@ -75,35 +59,16 @@ app.controller(
                     }
                     console.log(e);
                 });
-
-                // return fh
-                //     .getProjectCount
-                //     .call()
-                //     .then(count => {
-                //         let c = count.toNumber();
-                //         for (let i = 0; i < c; i++) {
-                //             let projectAddr = fh
-                //                 .getProject
-                //                 .call(i)
-                //                 .then(projectAddr => {
-                //                     let p = Project.at(projectAddr);
-                //                     $scope.projectContracts.push(p);
-                //                     let projectDetails = p
-                //                         .details
-                //                         .call()
-                //                         .then(details => {
-                //                             $scope.projects.push(ProjectDetailsStruct.new(projectDetails));
-                //                         });
-                //                 });
-                //         }
-                //     })
-                //     .catch(error => {
-                //         console.error(error);
-                //     });
+                $scope.refreshProjects();
             };
+
+            $scope.refreshProjects = () => {
+
+            };
+
             $scope.wallet = () => {
                 // Example of seed 'unhappy nerve cancel reject october fix vital pulse cash behind curious bicycle'
-                var seed = prompt('Enter your private key seed', '12 words long');
+                var seed = prompt('Enter your private key seed', 'unhappy nerve cancel reject october fix vital pulse cash behind curious bicycle');
                 // the seed is stored in memory and encrypted by this user-defined password
                 var password = prompt('Enter password to encrypt the seed', 'dev_password');
 
@@ -134,7 +99,29 @@ app.controller(
 
                     let accounts = ks.getAddresses();
                     let account = "0x" + accounts[0];
-                    console.log("Your account is " + account);
+
+                    $scope.$apply(() => {
+                        web3.eth.defaultAccount = account;
+                        $scope.owner = web3.eth.defaultAccount;
+                        $scope.sender = web3.eth.defaultAccount;
+                    });
+                    web3.eth.getAccounts(
+                        (err, acc) => {
+                            if (err) {
+                                console.error(err);
+                                return;
+                            }
+                            if (acc && acc.length > 0) {
+                                console.log('Geth accounts: ', acc);
+                                console.log('Send 1 ether to the light wallet account with coinbase account using command below');
+                                console.log('web3.eth.sendTransaction({ from: "' + acc[0] + '", to: "' + account + '", value: web3.toWei(1, "ether") }), (err, tx) => {console.log(tx); if(err)console.error(err);})');
+                                console.log('Then check the balance with');
+                                console.log('web3.fromWei(web3.eth.getBalance("' + account + '"), "ether").toString()')
+                            } else {
+                                console.error('Couldn\'t set web3.eth.defaultAccount, ', acc)
+                            }
+                        });
+                    console.log('Your account is ' + account + ' with balance ' + web3.fromWei(web3.eth.getBalance(account), 'ether').toString() + ' ethers');
                 });
             };
 

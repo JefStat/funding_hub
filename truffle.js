@@ -36,6 +36,7 @@ module.exports = {
             network_id: 14658 // b9labs student network
             , host: "192.168.1.16"
             , port: 8545
+            , gasPrice: '18000000000'
         }
         , "development": {
             network_id: "default"
