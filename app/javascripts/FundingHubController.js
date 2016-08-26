@@ -13,8 +13,12 @@ var ProjectDetailsStruct = {
 };
 
 app.controller(
-        "FundingHubController",
-        ['$scope', '$location', '$http', '$q', '$window', '$timeout',
-            function ($scope, $location, $http, $q, $window, $timeout) {
-
-            }]);
+    "FundingHubController",
+    ['$scope', '$location', '$http', '$q', '$window', '$timeout',
+        function ($scope, $location, $http, $q, $window, $timeout) {
+            $scope.projects = [];
+            $scope.createProject = function (owner, goalAmount, deadline) {
+            };
+            $scope.fund = function (sender, amount) {
+            };
+        }]);

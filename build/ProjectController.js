@@ -1,6 +1,7 @@
 
 
 var app = angular.module('FundingHubApp');
+
 var ProjectDetailsStruct = {
     new: function (truffleArray) {
         return {
@@ -15,8 +16,8 @@ var ProjectDetailsStruct = {
 };
 
 app.controller(
-        "FundingHubController",
-        ['$scope', '$location', '$http', '$q', '$window', '$timeout',
-            function ($scope, $location, $http, $q, $window, $timeout) {
+    "ProjectController",
+    ['$scope', '$location', '$http', '$q', '$window', '$timeout',
+        function ($scope, $location, $http, $q, $window, $timeout) {
 
-            }]);
+        }]);
