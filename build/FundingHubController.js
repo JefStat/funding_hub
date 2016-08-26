@@ -24,21 +24,29 @@ app.controller(
             $scope.goalAmount = 0;
             $scope.amount = 0;
             $scope.projects = [];
+            $scope.projectContracts = [];
             $scope.createProject = function (owner, goalAmount, deadline) {
                 if (deadline && goalAmount > 0 && owner) {
                     var deadlineInt = Math.floor(deadline.valueOf() / 1000);
+
                     fh
-                        .createProject
-                        .sendTransaction(owner, goalAmount, deadlineInt)
+                        .createProject(owner, goalAmount, deadlineInt, {from: web3.eth.defaultAccount})
                         .then(tx => {
-                            console.log(tx);
-                        });
+                            return web3
+                                .eth
+                                .getTransactionReceiptMined(tx)
+                                .then(console.log)
+                                .catch(console.error);
+                        })
+                        .then($scope.refreshProjects)
+                        .catch(console.error);
                 }
             };
             $scope.fund = function (sender, amount) {
             };
 
             $window.onload = e => {
+                initWeb3();
                 web3.eth.getAccounts(
                     (err, acc) => {
                         if (err) {
@@ -55,9 +63,11 @@ app.controller(
                             console.error('Couldn\'t set web3.eth.defaultAccount, ', acc)
                         }
                     });
+                $scope.refreshProjects();
+            };
 
-                let projectContracts = [];
-                let numberOfProject = fh
+            $scope.refreshProjects = () => {
+                return fh
                     .getProjectCount
                     .call()
                     .then(count => {
@@ -68,7 +78,7 @@ app.controller(
                                 .call(i)
                                 .then(projectAddr => {
                                     let p = Project.at(projectAddr);
-                                    projectContracts.push(p);
+                                    $scope.projectContracts.push(p);
                                     let projectDetails = p
                                         .details
                                         .call()
@@ -84,3 +94,28 @@ app.controller(
             };
 
         }]);
+
+function initWeb3() {
+    web3.eth.getTransactionReceiptMined = function (txnHash, interval) {
+        var transactionReceiptAsync;
+        interval |= 500;
+        transactionReceiptAsync = function (txnHash, resolve, reject) {
+            try {
+                var receipt = web3.eth.getTransactionReceipt(txnHash);
+                if (receipt == null) {
+                    setTimeout(function () {
+                        transactionReceiptAsync(txnHash, resolve, reject);
+                    }, interval);
+                } else {
+                    resolve(receipt);
+                }
+            } catch (e) {
+                reject(e);
+            }
+        };
+
+        return new Promise(function (resolve, reject) {
+            transactionReceiptAsync(txnHash, resolve, reject);
+        });
+    };
+}
