@@ -43,14 +43,15 @@
 
 <ul>
     <li ng-repeat="project in projects">
-        <div>
+        <div id="columns">
             <h5><span>project @ </span><span>{{project.address}}</span></h5>
             <p>
-                <span>owner @ </span><span>{{project.owner}}</span>
-                <span>goalAmount @ </span><span>{{project.goalAmount.toString()}}</span>
-                <span>deadline @ </span><span>{{(new Date(project.deadline.toNumber())).toString()}}</span>
-                <span>amountFunded @ </span><span>{{project.amountFunded.toString()}}</span>
-                <span ng-show="project.refunded || project.paid "><span>status: </span><span>{{project.refunded? 'refunded' : 'paid'}}</span></span>
+                <span>owner @ </span><span>{{project.owner}}</span><br/>
+                <span>goalAmount @ </span><span>{{project.goalAmount.toString()}}</span><br/>
+                <!--<span>deadline @ </span><span>{{(new Date(project.deadline.toNumber())).toString()}}</span>-->
+                <span>deadline @ </span><span>{{project.deadline.toNumber()}}</span><br/>
+                <span>amountFunded @ </span><span>{{project.amountFunded.toString()}}</span><br/>
+                <span ng-show="project.refunded || project.paid "><span>status: </span><span>{{project.refunded? 'refunded' : 'paid'}}</span></span><br/>
             </p>
         </div>
     </li>

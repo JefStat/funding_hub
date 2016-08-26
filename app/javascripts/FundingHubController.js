@@ -33,8 +33,8 @@ app.controller(
                         .sendTransaction(owner, goalAmount, deadlineInt,
                             {
                                 from: web3.eth.defaultAccount
-                                ,gas: web3.toBigNumber(web3.toWei(4,'Mwei'))
-                                ,gasPrice: web3.toBigNumber(web3.toWei(50,'Shannon'))
+                                , gas: web3.toBigNumber(web3.toWei(4, 'Mwei'))
+                                , gasPrice: web3.toBigNumber(web3.toWei(50, 'Shannon'))
                             })
                         .then(tx => {
                             return web3
@@ -52,7 +52,7 @@ app.controller(
             $window.onload = e => {
                 initWeb3();
                 $scope.wallet();
-                var events = fh.allEvents({}, function (err, e) {
+                var newProject = fh.NewProject({}, {}, function (err, e) {
                     if (err) {
                         console.error(err);
                         return;
@@ -63,7 +63,34 @@ app.controller(
             };
 
             $scope.refreshProjects = () => {
-
+                return fh
+                    .getProjectCount
+                    .call()
+                    .then(count => {
+                        let c = count.toNumber();
+                        let promises = [];
+                        for (let i = 0; i < c; i++) {
+                            promises.push(fh
+                                .getProject
+                                .call(i)
+                                .then(projectAddr => {
+                                    let p = Project.at(projectAddr);
+                                    $scope.projectContracts.push(p);
+                                    return p
+                                        .details
+                                        .call()
+                                        .then(details => {
+                                            var d = ProjectDetailsStruct.new(details);
+                                            d.address = projectAddr;
+                                            $scope.$apply(() => {$scope.projects.push(d);});
+                                        });
+                                }));
+                        }
+                        return Promise.all(promises);
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
             };
 
             $scope.wallet = () => {
