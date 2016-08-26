@@ -34,7 +34,7 @@ app.controller(
                             {
                                 from: web3.eth.defaultAccount
                                 ,gas: web3.toBigNumber(web3.toWei(4,'Mwei'))
-                                ,gasPrice: web3.gasPrice
+                                ,gasPrice: web3.toBigNumber(web3.toWei(50,'Shannon'))
                             })
                         .then(tx => {
                             return web3
