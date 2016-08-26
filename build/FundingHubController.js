@@ -19,12 +19,13 @@ app.controller(
     'FundingHubController',
     ['$scope', '$location', '$http', '$q', '$window', '$timeout',
         function ($scope, $location, $http, $q, $window, $timeout) {
-            let fh = FundingHub.deployed();
             $scope.deadline = new Date();
             $scope.goalAmount = 0;
             $scope.amount = 0;
             $scope.projects = [];
             $scope.projectContracts = [];
+            $scope.fh = FundingHub.deployed();
+            let fh = $scope.fh;
             $scope.createProject = function (owner, goalAmount, deadline) {
                 if (deadline && goalAmount > 0 && owner) {
                     var deadlineInt = Math.floor(deadline.valueOf() / 1000);
@@ -38,7 +39,7 @@ app.controller(
                                 .then(console.log)
                                 .catch(console.error);
                         })
-                        .then($scope.refreshProjects)
+                        //.then($scope.refreshProjects)
                         .catch(console.error);
                 }
             };
@@ -67,30 +68,39 @@ app.controller(
             };
 
             $scope.refreshProjects = () => {
-                return fh
-                    .getProjectCount
-                    .call()
-                    .then(count => {
-                        let c = count.toNumber();
-                        for (let i = 0; i < c; i++) {
-                            let projectAddr = fh
-                                .getProject
-                                .call(i)
-                                .then(projectAddr => {
-                                    let p = Project.at(projectAddr);
-                                    $scope.projectContracts.push(p);
-                                    let projectDetails = p
-                                        .details
-                                        .call()
-                                        .then(details => {
-                                            $scope.projects.push(ProjectDetailsStruct.new(projectDetails));
-                                        });
-                                });
-                        }
-                    })
-                    .catch(error => {
-                        console.error(error);
-                    });
+
+                var events = fh.allEvents({}, function (err, e) {
+                    if (err) {
+                        console.error(err);
+                        return;
+                    }
+                    console.log(e);
+                });
+
+                // return fh
+                //     .getProjectCount
+                //     .call()
+                //     .then(count => {
+                //         let c = count.toNumber();
+                //         for (let i = 0; i < c; i++) {
+                //             let projectAddr = fh
+                //                 .getProject
+                //                 .call(i)
+                //                 .then(projectAddr => {
+                //                     let p = Project.at(projectAddr);
+                //                     $scope.projectContracts.push(p);
+                //                     let projectDetails = p
+                //                         .details
+                //                         .call()
+                //                         .then(details => {
+                //                             $scope.projects.push(ProjectDetailsStruct.new(projectDetails));
+                //                         });
+                //                 });
+                //         }
+                //     })
+                //     .catch(error => {
+                //         console.error(error);
+                //     });
             };
 
         }]);
