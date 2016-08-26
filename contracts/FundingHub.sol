@@ -20,4 +20,8 @@ contract FundingHub {
     function getProject(uint index) returns(address) {
         return projects[index];
     }
+
+    function getProjectCount() returns(uint) {
+        return projects.length;
+    }
 }

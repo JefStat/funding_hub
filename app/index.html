@@ -14,21 +14,31 @@
 
 <div>
     <h2>Create Project</h2>
-    <input type="text" id="owner" ng-model="owner"
-           placeholder="Owner address 0x..."/>
-    <input type="number" id="goalAmount" ng-model="goalAmount"
-           placeholder="goal amount in wei"/>
-    <input type="date" id="endDate" ng-model="deadline"
-           placeholder="yyyy-MM-dd"/>
+    <div>
+        <span>Owner:</span>
+        <input type="text" id="owner" ng-model="owner"
+               placeholder="Owner address 0x..."/></div>
+    <div>
+        <span>Goal amount:</span>
+        <input type="number" id="goalAmount" ng-model="goalAmount"
+               placeholder="goal amount in wei"/></div>
+    <div>
+        <span>Deadline:</span>
+        <input type="date" id="endDate" ng-model="deadline"
+               placeholder="yyyy-MM-dd"/></div>
     <button ng-click="createProject(owner,goalAmount,deadline)">CreateProject</button>
 </div>
 
 <div>
     <h2>Fund</h2>
-    <input type="text" id="sender" ng-model="sender"
-           placeholder="sender address 0x..."/>
-    <input type="number" id="amount" ng-model="amount"
-           placeholder="goal amount in wei"/>
+    <div>
+        <span>From:</span>
+        <input type="text" id="sender" ng-model="sender"
+               placeholder="sender address 0x..."/></div>
+    <div>
+        <span>Amount:</span>
+        <input type="number" id="amount" ng-model="amount"
+               placeholder="goal amount in wei"/></div>
     <button ng-click="fund(sender,amount)">CreateProject</button>
 </div>
 
