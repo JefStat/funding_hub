@@ -19,10 +19,11 @@ app.controller(
         function ($scope, $location, $http, $q, $window, $timeout) {
             $scope.deadline = new Date();
             $scope.goalAmount = 0;
-            $scope.amount = 0;
+            $scope.amount = null;
             $scope.projects = [];
             $scope.projectContracts = [];
             $scope.fh = FundingHub.deployed();
+            $scope.fundTarget = 'No project selected';
             let fh = $scope.fh;
             $scope.createProject = function (owner, goalAmount, deadline) {
                 if (deadline && goalAmount > 0 && owner) {
@@ -47,6 +48,36 @@ app.controller(
                 }
             };
             $scope.fund = function (sender, amount) {
+                if (!$scope.fundTarget) {
+                    $scope.$apply(() => {
+                        $scope.fundTarget = 'Select a project to fund fist';
+                    });
+                    return;
+                }
+                fh
+                    .contribute
+                    .sendTransaction($scope.fundTarget,
+                        {
+                            from: sender
+                            , value: amount
+                            , gas: web3.toBigNumber(web3.toWei(4, 'Mwei'))
+                            , gasPrice: web3.toBigNumber(web3.toWei(50, 'Shannon'))
+                        })
+                    .then(tx => {
+                        return web3
+                            .eth
+                            .getTransactionReceiptMined(tx)
+                            .then(console.log)
+                            .catch(console.error);
+                    })
+                    .catch(console.error);
+            };
+
+            $scope.projectSelected = function (project) {
+                if (project.refunded || project.paid) {
+                    return;
+                }
+                $scope.fundTarget = project.address;
             };
 
             $window.onload = e => {
@@ -71,7 +102,32 @@ app.controller(
                                 $scope.$apply(() => {
                                     $scope.projects.push(d);
                                 });
-                            });
+                            })
+                            .catch(console.error);
+                    }
+                });
+                $scope.contributedEvent = fh.Contributed({});
+                $scope.contributedEvent.watch(function (err, e) {
+                    if (err) {
+                        console.error(err);
+                        return;
+                    }
+                    console.log(e);
+                    if (e.args && e.args.proj) {
+                        let p = Project.at(e.args.proj);
+                        $scope.projectContracts.push(p);
+                        p
+                            .details
+                            .call()
+                            .then(details => {
+                                var d = ProjectDetailsStruct.new(details);
+                                d.address = e.args.proj;
+                                $scope.$apply(() => {
+                                    var index = _.findIndex($scope.projects, o => d.address == o.address);
+                                    $scope.projects[index] = d;
+                                });
+                            })
+                            .catch(console.error);
                     }
                 });
                 $scope.refreshProjects();
@@ -158,7 +214,7 @@ app.controller(
                             if (acc && acc.length > 0) {
                                 console.log('Geth accounts: ', acc);
                                 console.log('Send 1 ether to the light wallet account with coinbase account using command below');
-                                console.log('web3.eth.sendTransaction({ from: "' + acc[0] + '", to: "' + account + '", value: web3.toWei(1, "ether") }), (err, tx) => {console.log(tx); if(err)console.error(err);})');
+                                console.log('web3.eth.sendTransaction({ from: "' + acc[0] + '", to: "' + account + '", value: web3.toWei(1, "ether") }, (err, tx) => {console.log(tx); if(err)console.error(err);})');
                                 console.log('Then check the balance with');
                                 console.log('web3.fromWei(web3.eth.getBalance("' + account + '"), "ether").toString()')
                             } else {

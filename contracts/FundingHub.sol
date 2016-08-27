@@ -5,6 +5,7 @@ contract FundingHub {
     event NewProject(address proj, uint index);
     event GetProject(address proj);
     event GetProjectCount(uint count);
+    event Contributed(address proj);
 
     mapping(address => uint) public projectsMap;
     address[] public projects;
@@ -18,6 +19,7 @@ contract FundingHub {
 
     function contribute(address proj) {
         Project(proj).fund.value(msg.value)();
+        Contributed(proj);
     }
 
     function getProjectCount() returns(uint) {

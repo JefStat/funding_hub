@@ -5,6 +5,7 @@
     <title>FundingHub</title>
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
     <link href="./app.css" rel='stylesheet' type='text/css'>
+    <script src="https://cdn.jsdelivr.net/lodash/4.15.0/lodash.min.js"></script>
     <script src="./app.js"></script>
     <script src="./FundingHubController.js"></script>
 </head>
@@ -29,7 +30,7 @@
 </div>
 
 <div>
-    <h3>Fund</h3>
+    <h3>Fund project -> <span></span>{{fundTarget}}</h3>
     <div>
         <span>From:</span>
         <input type="text" id="sender" ng-model="sender"
@@ -38,20 +39,19 @@
         <span>Amount:</span>
         <input type="number" id="amount" ng-model="amount"
                placeholder="goal amount in wei"/></div>
-    <button ng-click="fund(sender,amount)">CreateProject</button>
+    <button ng-click="fund(sender,amount)">fund it!</button>
 </div>
 
 <ul>
-    <li ng-repeat="project in projects">
+    <li ng-repeat="project in projects" ng-click="projectSelected(project)" ng-class="project.refunded || project.paid ? '' : 'canHover'">
         <div id="columns">
             <h5><span>project @ </span><span>{{project.address}}</span></h5>
             <p>
                 <span>owner @ </span><span>{{project.owner}}</span><br/>
-                <span>goalAmount @ </span><span>{{project.goalAmount.toString()}}</span><br/>
-                <!--<span>deadline @ </span><span>{{(new Date(project.deadline.toNumber())).toString()}}</span>-->
-                <span>deadline @ </span><span>{{project.deadline.toNumber()}}</span><br/>
+                <span>goalAmount -> </span><span>{{project.goalAmount.toString()}}</span><br/>
+                <span>deadline is </span><span>{{project.deadline.toNumber()*1000 | date }}</span><br/>
                 <span>amountFunded @ </span><span>{{project.amountFunded.toString()}}</span><br/>
-                <span ng-show="project.refunded || project.paid "><span>status: </span><span>{{project.refunded? 'refunded' : 'paid'}}</span></span><br/>
+                <span id="bold" ng-show="project.refunded || project.paid"><span>status: </span><span>{{project.refunded? 'refunded' : 'paid'}}</span></span><br/>
             </p>
         </div>
     </li>
