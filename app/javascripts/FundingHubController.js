@@ -52,12 +52,27 @@ app.controller(
             $window.onload = e => {
                 initWeb3();
                 $scope.wallet();
-                var newProject = fh.NewProject({}, {}, function (err, e) {
+                $scope.newProjectEvent = fh.NewProject({});
+                $scope.newProjectEvent.watch(function (err, e) {
                     if (err) {
                         console.error(err);
                         return;
                     }
                     console.log(e);
+                    if (e.args && e.args.proj) {
+                        let p = Project.at(e.args.proj);
+                        $scope.projectContracts.push(p);
+                        p
+                            .details
+                            .call()
+                            .then(details => {
+                                var d = ProjectDetailsStruct.new(details);
+                                d.address = e.args.proj;
+                                $scope.$apply(() => {
+                                    $scope.projects.push(d);
+                                });
+                            });
+                    }
                 });
                 $scope.refreshProjects();
             };
@@ -82,7 +97,9 @@ app.controller(
                                         .then(details => {
                                             var d = ProjectDetailsStruct.new(details);
                                             d.address = projectAddr;
-                                            $scope.$apply(() => {$scope.projects.push(d);});
+                                            $scope.$apply(() => {
+                                                $scope.projects.push(d);
+                                            });
                                         });
                                 }));
                         }
